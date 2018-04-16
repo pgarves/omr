@@ -16,4 +16,4 @@ Upon completion of the verification process, a message will be sent to the user 
 
 ## Architecture
 
-![Click here to view the architecture diagram](https://raw.githubusercontent.com/pgarves/omr/master/OMR%20Diagram%20v3_shadow.png)
+![Click here to view the architecture diagram](https://raw.githubusercontent.com/pgarves/omr/master/OMR%20Diagram%20v3.png)
