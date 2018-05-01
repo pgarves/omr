@@ -5,18 +5,15 @@ $form = <<<EOBODY
     <form action="{$_SERVER['PHP_SELF']}" method="post">
         <p>
             <strong>Material: </strong><input type="text" name="material" id="material" required="required"/>
-            
         </p>
         <p>
             <strong>Tool: </strong><input type="text" name="tool" id="tool" required="required"/>
         </p> 
         <p>
             <input type="submit" name="submit" value="Search" />
-        </p>   
+        </p>  
     </form>
 EOBODY;
-
-
 
 
 $alert = "";
