@@ -7,7 +7,7 @@ date_default_timezone_set('UTC');
 
 use Aws\DynamoDb\Exception\DynamoDbException;
 use Aws\DynamoDb\Marshaler;
-use Aws\Credentials\CredentialProvider;
+use Aws\DynamoDb\DynamoDbClient;
 
 $title="Search";
 $form = <<<EOBODY
@@ -28,14 +28,14 @@ EOBODY;
 
 
 $error = "";
-$provider = CredentialProvider::ini();
-$provider = CredentialProvider::memoize($provider);
+
 
 if(isset($_POST['submit'])) {
+
     $sdk = new Aws\Sdk([
+        'endpoint' => 'http://34.226.209.127',
         'version'  => 'latest',
-        'region'   => 'us-east-1a',
-        'credentials' => $provider
+        'region' => 'us-east-1'
     ]);
 
     $dynamodb = $sdk->createDynamoDb();
@@ -46,19 +46,20 @@ if(isset($_POST['submit'])) {
     $manufacturer = $_POST['manufacturer'];
     $tool = $_POST['tool'];
 
+
     $item = $marshaler->marshalJson('
         {
-            "Manufacturer": "Champion",
-            "Tool_Id": "105-1/16"
+            "Manufacturer": "'. $manufacturer .'",
+            "Tool_Id": "'. $tool .'"
         }
     ');
 
     $params = [
-        'TableName' => $table,
-        'Key' => $item
+        'Key' => $item,
+        'TableName' => $table
     ];
 
-    try{
+   try{
        $result = $dynamodb->getItem($params);
        $_SESSION['result'] = $result["Item"];
        header("Location: results.php");
