@@ -59,13 +59,13 @@ if(isset($_POST['submit'])) {
         'TableName' => $table
     ];
 
-   try{
+ //  try{
        $result = $dynamodb->getItem($params);
        $_SESSION['result'] = $result["Item"];
        header("Location: results.php");
-    } catch(DynamoDbException $e) {
-        $error = "<h2>There is no data associated with Manufacturer: $manufacturer and Tool: $tool </h2>";
-    }
+//    } catch(DynamoDbException $e) {
+//        $error = "<h2>There is no data associated with Manufacturer: $manufacturer and Tool: $tool </h2>";
+//    }
 }
 $body = $form.$error;
 $page = generatePage($body, $title);
