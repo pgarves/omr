@@ -7,7 +7,6 @@ date_default_timezone_set('UTC');
 
 use Aws\DynamoDb\Exception\DynamoDbException;
 use Aws\DynamoDb\Marshaler;
-use Aws\DynamoDb\DynamoDbClient;
 
 $title="Search";
 $form = <<<EOBODY
@@ -34,15 +33,16 @@ if(isset($_POST['submit'])) {
 
     $sdk = new Aws\Sdk([
         'endpoint' => 'http://34.226.209.127',
-        'version'  => 'latest',
-        'region' => 'us-east-1'
+        'region' => 'us-east-1',
+        'version'  => 'latest'
+
     ]);
 
     $dynamodb = $sdk->createDynamoDb();
 
     $marshaler = new Marshaler();
 
-    $table = "OMR_main";
+    $table = 'OMR_main';
     $manufacturer = $_POST['manufacturer'];
     $tool = $_POST['tool'];
 
@@ -55,8 +55,8 @@ if(isset($_POST['submit'])) {
     ');
 
     $params = [
-        'Key' => $item,
-        'TableName' => $table
+        'TableName' => $table,
+        'Key' => $item
     ];
 
  //  try{
