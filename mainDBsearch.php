@@ -3,8 +3,11 @@ session_start();
 require 'aws/aws-autoloader.php';
 require_once("support.php");
 
+date_default_timezone_set('UTC');
+
 use Aws\DynamoDb\Exception\DynamoDbException;
 use Aws\DynamoDb\Marshaler;
+use Aws\Credentials\CredentialProvider;
 
 $title="Search";
 $form = <<<EOBODY
@@ -25,12 +28,14 @@ EOBODY;
 
 
 $error = "";
+$provider = CredentialProvider::ini();
+$provider = CredentialProvider::memoize($provider);
 
 if(isset($_POST['submit'])) {
     $sdk = new Aws\Sdk([
-        'endpoint'   => 'http://localhost:8000',
+        'version'  => 'latest',
         'region'   => 'us-east-1a',
-        'version'  => 'latest'
+        'credentials' => $provider
     ]);
 
     $dynamodb = $sdk->createDynamoDb();
