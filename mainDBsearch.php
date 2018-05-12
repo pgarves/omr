@@ -32,10 +32,8 @@ $error = "";
 if(isset($_POST['submit'])) {
 
     $sdk = new Aws\Sdk([
-        'endpoint' => 'http://34.226.209.127',
         'region' => 'us-east-1',
         'version'  => 'latest'
-
     ]);
 
     $dynamodb = $sdk->createDynamoDb();
@@ -49,8 +47,8 @@ if(isset($_POST['submit'])) {
 
     $item = $marshaler->marshalJson('
         {
-            "Manufacturer": "'. $manufacturer .'",
-            "Tool_Id": "'. $tool .'"
+            "Manufacturer": "' . $manufacturer . '",
+            "Tool_Id": "' . $tool . '"
         }
     ');
 
@@ -59,13 +57,17 @@ if(isset($_POST['submit'])) {
         'Key' => $item
     ];
 
- //  try{
+    try{
        $result = $dynamodb->getItem($params);
-       $_SESSION['result'] = $result["Item"];
-       header("Location: results.php");
-//    } catch(DynamoDbException $e) {
-//        $error = "<h2>There is no data associated with Manufacturer: $manufacturer and Tool: $tool </h2>";
-//    }
+       if ($result["Item"] == NULL) {
+           $error .= "<h2>There is no data associated with Manufacturer: $manufacturer and Tool: $tool </h2>";
+       } else {
+           $_SESSION['result'] = $result["Item"];
+           header("Location: results.php");
+       }
+    } catch(DynamoDbException $e) {
+        $error .= $e->getMessage();
+    }
 }
 $body = $form.$error;
 $page = generatePage($body, $title);
