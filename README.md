@@ -9,7 +9,7 @@ If the user is not satisfied with the current state of the database, the user ha
 Upon completion of the verification process, a message will be sent to the user updating them of the results from the verification process, and whether or not the main OMR has been updated to support the user-defined process.
 
 ## Services Used
-- Dynamo DB
+- DynamoDB
 - ALB (Load Balancer)
 - EC2
 - SNS
@@ -31,4 +31,29 @@ https://www.digitalocean.com/community/tutorials/how-to-install-linux-nginx-mysq
 https://www.scalescale.com/tips/nginx/php5-fpm-sock-failed-13-permission-denied-error/
 
 As reference this is how the my .conf looked like: 
-![Click here to view the .conf file]()
+![Click here to view the .conf file](https://raw.githubusercontent.com/pgarves/omr/master/nginx%20conf%20file.PNG)
+
+### AWS API
+In order to able to interface with all of the AWS services using PHP via the EC2 instance I have included a aws folder with the AWS SDK for PHP. In order to take advantage of the SDK, include the following in php files where you require communication with the AWS API:
+```
+require 'aws/aws-autoloader.php';
+```
+### Credentials
+Access to AWS services will only be granted with the right credentials for your IAM so for this application simply input your credentials into the enviornment variables for aws. https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-started.html
+
+## ALB
+The load balancer is pretty simple to set up as all that is needed is to register the created EC2 Instance with the website to the target for the ALB.
+
+## DynamoDB
+At least two tables are required to get started:
+- a main OMR table
+- a Manufacturer table
+
+These tables are easily created in the AWS console. In the OMR, the main table is read and updated while the Manufacturer table is only read and separate process, that is not included would add and update the Manufacturer's tables.  
+
+The main OMR table uses a primary key, "Manufacturer", and sorting key, "Tool ID", this will keep all info about a unique tool in a single item where it will be easy to see all compatible materials and verified paramters that the tool was used for. 
+
+The Manufacturer's table keeps track of all specs for its tools using Tool ID as its primary key. As Manufacturers join the system, tables can be created using the AWS console to add to the KBM that the forms will use to verify data before submitting an update to the main database. 
+
+## SNS
+With the AWS SDK, everything needed for SNS is included!
