@@ -22,7 +22,9 @@ Upon completion of the verification process, a message will be sent to the user 
 The website is PHP based in order to handle the back end database operations, which means that a little extra set up is necessary to prepare an instance to process requests. 
 
 ### Nginx
-Nginx is needed to process website files, including PHP, properly. The following is a good guide to installing Nginx to the EC2 instance for the first time. https://www.nginx.com/blog/setting-up-nginx/#open-web-page
+Nginx is needed to process website files, including PHP, properly. The following is a good guide to installing Nginx to the EC2 instance for the first time. 
+
+https://www.nginx.com/blog/setting-up-nginx/#open-web-page
 
 ### PHP Processing
 This can be a little tricky as documentation online is not necessarily up to date however the following two resources will help you get PHP processing up and working, so that it is possible to serve php files: 
