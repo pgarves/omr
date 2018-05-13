@@ -1,7 +1,8 @@
 <?php
-
-require_once("support.php");
+session_start();
 require 'aws/aws-autoloader.php';
+require_once("support.php");
+
 
 date_default_timezone_set('UTC');
 
