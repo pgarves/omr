@@ -25,10 +25,13 @@ The website is PHP based in order to handle the back end database operations, wh
 Nginx is needed to process website files, including PHP, properly. The following is a good guide to installing Nginx to the EC2 instance for the first time. https://www.nginx.com/blog/setting-up-nginx/#open-web-page
 
 ### PHP Processing
-This can be a little tricky as documentation online is not necessarily up to date however the following two resources will help you get PHP processing up and working, so that it is possible to serve php files:
-https://docs.aws.amazon.com/sdk-for-php/v3/developer-guide/getting-started_installation.html
-https://www.digitalocean.com/community/tutorials/how-to-install-linux-nginx-mysql-php-lemp-stack-in-ubuntu-16-04
-https://www.scalescale.com/tips/nginx/php5-fpm-sock-failed-13-permission-denied-error/
+This can be a little tricky as documentation online is not necessarily up to date however the following two resources will help you get PHP processing up and working, so that it is possible to serve php files: 
+
+https://docs.aws.amazon.com/sdk-for-php/v3/developer-guide/getting-started_installation.html 
+
+https://www.digitalocean.com/community/tutorials/how-to-install-linux-nginx-mysql-php-lemp-stack-in-ubuntu-16-04 
+
+https://www.scalescale.com/tips/nginx/php5-fpm-sock-failed-13-permission-denied-error/ 
 
 As reference this is how the my .conf looked like: 
 ![Click here to view the .conf file](https://raw.githubusercontent.com/pgarves/omr/master/nginx%20conf%20file.PNG)
@@ -38,8 +41,14 @@ In order to able to interface with all of the AWS services using PHP via the EC2
 ```
 require 'aws/aws-autoloader.php';
 ```
+
+### IAM Roles
+It is necessary to create a role with at least the ```AmazonDynamoDBFullAccess``` policy and attaching it to the EC2 Instance, giving it the required permissions.
+
 ### Credentials
-Access to AWS services will only be granted with the right credentials for your IAM so for this application simply input your credentials into the enviornment variables for aws. https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-started.html
+Access to AWS services will only be granted with the right credentials for your IAM so for this application simply input your credentials into the enviornment variables for aws. 
+
+https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-started.html
 
 ## ALB
 The load balancer is pretty simple to set up as all that is needed is to register the created EC2 Instance with the website to the target for the ALB.
