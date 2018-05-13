@@ -37,7 +37,7 @@ foreach ($result["Speed"] as $container) {
 $body .= "</td>";
 $body .= "</tr>";
 $body .= "</tbody></table></p>";
-$body .= "<input type='button' onclick='user_form.php' value='New Process' />";
+$body .= "<input type='button' onclick=\"location.href='user_form.php'\" value='New Process' />";
 
 $page = generatePage($body, $title);
 echo $page;
