@@ -68,3 +68,7 @@ The Manufacturer's table keeps track of all specs for its tools using Tool ID as
 
 ## SNS
 With the AWS SDK, everything needed for SNS is included!
+
+## Final Product(Demo)
+
+http://34.226.209.127/omr/main.html
