@@ -38,6 +38,8 @@ https://www.scalescale.com/tips/nginx/php5-fpm-sock-failed-13-permission-denied-
 As reference this is how the my .conf looked like: 
 ![Click here to view the .conf file](https://raw.githubusercontent.com/pgarves/omr/master/nginx%20conf%20file.PNG)
 
+Be sure to include ```sudo apt install php-xml```, I ran into this problem...
+
 ### AWS API
 In order to able to interface with all of the AWS services using PHP via the EC2 instance I have included a aws folder with the AWS SDK for PHP. In order to take advantage of the SDK, include the following in php files where you require communication with the AWS API:
 ```
