@@ -45,6 +45,7 @@ if(isset($_POST['submit'])) {
         'version'  => 'latest'
     ]);
 
+    $message = "";
     $dynamodb = $sdk->createDynamoDb();
 
     $marshaler = new Marshaler();
@@ -72,73 +73,87 @@ if(isset($_POST['submit'])) {
         } else {
             $sns = $sdk->createSns();
             $email = $_POST['email'];
-            $email = preg_replace('/[\@\.]/', '', $email);
+            $emailarn = preg_replace('/[\@\.]/', '', $email);
             $topic_arn = $sns->createTopic(array(
-                'Name' => 'omr_response'.$email
+                'Name' => 'omr_response'.$emailarn
             ));
 
-            $item = $result["Item"];
-            foreach($item["Feature"] as $feature) {
-                if($feature == $_POST['feature']) {
-                    foreach($item["Material"] as $material) {
-                        if($material == $_POST['material']) {
-                            foreach($item['Max Speed'] as $max_speed) {
-                                if ($max_speed > $_POST['speed']) {
-                                    foreach($item['Min Speed'] as $min_speed) {
-                                        if($min_speed < $_POST['speed']) {
-                                            $key = $marshaler->marshalJson('
-                                                {
-                                                    "Manufacturer": "' . $table . '",
-                                                    "Tool_Id": "' . $tool . '"
-                                                }
-                                            ');
-                                            $eav = $marshaler->marshalJson('
-                                                {   
-                                                    ":m": ["' . $_POST['material'] . '"],
-                                                    ":s": ["' . $_POST['speed'] . '"]
-                                                }
-                                            ');
-                                            $params = [
-                                                'TableName' => $main_table,
-                                                'Key' => $key,
-                                                'UpdateExpression' => 'set Material = :m, Speed = :s',
-                                                'ExpressionAttributeValues' => $eav,
-                                                'ReturnValues' => 'UPDATED_NEW'
-                                            ];
-                                            try {
-                                                $result = $dynamodb->updateItem($params);
-                                                echo "Updated item.\n";
-                                                print_r($result['Attributes']);
-                                                $message = "Your process has been verified and the OMR database has been updated! Enjoy!";
+            $subscriptionArn = $sns->listSubscriptionsByTopic(array(
+                'TopicArn' => $topic_arn["TopicArn"]
+            ));
+            if($subscriptionArn["Subscriptions"] == NULL) {
+                $subscription = $sns->subscribe(array(
+                    'Endpoint' => $email,
+                    'Protocol' => 'email',
+                    'TopicArn' => $topic_arn["TopicArn"]
+                ));
+                $body .= "<h2>This must be your first time! <br />
+                    Please confirm the subscription that was sent to the email you provided and submit again.</h2>";
+            } else {
+                $item = $result["Item"];
+                foreach ($item["Feature"] as $feature) {
+                    if ($feature == $_POST['feature']) {
+                        foreach ($item["Material"] as $container) {
+                            foreach ($container as $list) {
+                                foreach ($list as $material) {
+                                    if ($material == $_POST['material']) {
+                                        foreach ($item['Max Speed'] as $max_speed) {
+                                            if ($max_speed >= $_POST['speed']) {
+                                                foreach ($item['Min Speed'] as $min_speed) {
+                                                    if ($min_speed <= $_POST['speed']) {
+                                                        $key = $marshaler->marshalJson('
+                                                            {
+                                                                "Manufacturer": "' . $table . '",
+                                                                "Tool_Id": "' . $tool . '"
+                                                            }
+                                                        ');
+                                                        $eav = $marshaler->marshalJson('
+                                                            {   
+                                                                ":m": ["' . $_POST['material'] . '"],
+                                                                ":s": ["' . $_POST['speed'] . '"]
+                                                            }
+                                                        ');
+                                                        $params = [
+                                                            'TableName' => $main_table,
+                                                            'Key' => $key,
+                                                            'UpdateExpression' => 'set Material = list_append(Material, :m), Speed = list_append(Speed, :s)',
+                                                            'ExpressionAttributeValues' => $eav,
+                                                            'ReturnValues' => 'UPDATED_NEW'
+                                                        ];
+                                                        try {
+                                                            $result = $dynamodb->updateItem($params);
+                                                            $message = "Your process has been verified and the OMR database has been updated! Enjoy!";
 
-                                            } catch (DynamoDbException $e) {
-                                                echo "Unable to update item:\n";
-                                                echo $e->getMessage() . "\n";
-                                                $message = "Oh No! Something went wrong with the database! Please Resubmit.";
+                                                        } catch (DynamoDbException $e) {
+                                                            $message = "Oh No! Something went wrong with the database! Please Resubmit.";
+                                                        }
+                                                    } else {
+                                                        $message = "The speed you specified exceeds the manufacturer specs";
+                                                    }
+                                                }
+                                            } else {
+                                                $message = "The speed you specified exceeds the manufacturer specs";
                                             }
-                                        } else {
-                                            $message = "The speed you specified exceeds the manufacturer specs";
                                         }
                                     }
-                                } else {
-                                    $message = "The speed you specified exceeds the manufacturer specs";
                                 }
                             }
-                        } else {
-                            $message = "The material you specified DNE in our database. We'll get back you on that!";
                         }
+                    } else {
+                        $message = "The feature you require DNE in our database. We'll get back to you on that!";
                     }
-                } else {
-                    $message = "The feature you require DNE in our database. We'll get back to you on that!";
                 }
+                if ($message == "") {
+                    $message = "The Material you require DNE in our database We'll get back to you on that!";
+                }
+                $sns->publish(array(
+                    'TopicArn' => $topic_arn["TopicArn"],
+                    'Message' => $message,
+                    'Subject' => "OMR Database Update: $tool"
+                ));
+                $body .= "<h2>Data Submitted! Depending on the quality of the data provided, you can expect the OMR database 
+                to be updated as soon as you receive notification that the verification process is complete</h2>";
             }
-            $sns->publish(array(
-                'TopicArn' => $topic_arn["TopicArn"],
-                'Message' => $message,
-                'Subject' => "OMR Database Update: $tool"
-            ));
-            $body .= "<h2>Data Submitted! Depending on the quality of the data provided, you can expect the OMR database 
-            to be updated as soon as you receive notification that the verification process is complete</h2>";
         }
     } catch (DynamoDbException $e) {
         echo $e->getMessage() . "\n";
